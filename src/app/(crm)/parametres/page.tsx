@@ -146,10 +146,10 @@ export default function SettingsPage() {
         <section className="card p-4 sm:p-5 lg:col-span-2">
           <h2 className="mb-1 flex items-center gap-2 font-semibold"><Plug className="h-4 w-4 text-brand" /> Interconnexion site dzwhiteg.com</h2>
           <p className="text-sm text-muted">
-            Le CRM est prêt à recevoir automatiquement les demandes de devis de votre site (autre base Supabase). Chaque demande devient un client « Lead qualifié » + une opportunité à l&apos;étape « Brief reçu », avec notification à toute l&apos;équipe. Les doublons sont évités grâce à l&apos;identifiant externe.
+            Le CRM lit en <b className="text-fg">lecture seule</b> les demandes de devis, messages et clients de la base du site (autre compte Supabase). Rien n&apos;est importé automatiquement : chaque demande arrive dans la <a href="/inbox" className="text-brand hover:underline">Boîte de réception</a>, pré-remplie, et vous validez avant création.
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-            <Badge color={external ? "#34d399" : "#71717a"}>{external ? "Connecté" : "En attente de branchement"}</Badge>
+            <Badge color={external ? "#34d399" : "#71717a"}>{external ? "Utilisé" : "Prêt"}</Badge>
             <span className="text-faint">{external ?? 0} fiche(s) importée(s) depuis une source externe</span>
           </div>
         </section>

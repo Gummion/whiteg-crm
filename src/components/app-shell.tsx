@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import {
-  LayoutDashboard, Users, KanbanSquare, ListTodo, FileText, Bell, Settings, Plus, Search, LogOut, UserPlus, Briefcase, AlarmClock, ShieldAlert,
+  LayoutDashboard, Inbox, Users, KanbanSquare, ListTodo, FileText, Bell, Settings, Plus, Search, LogOut, UserPlus, Briefcase, AlarmClock, ShieldAlert,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { CrmProvider, useCrm } from "./crm-context";
@@ -18,6 +18,7 @@ const NAV = [
   { href: "/", label: "Tableau de bord", short: "Accueil", icon: LayoutDashboard },
   { href: "/clients", label: "Clients", short: "Clients", icon: Users },
   { href: "/pipeline", label: "Pipeline", short: "Pipeline", icon: KanbanSquare },
+  { href: "/inbox", label: "Réception site", short: "Réception", icon: Inbox },
   { href: "/documents", label: "Documents", short: "Docs", icon: FileText },
   { href: "/taches", label: "Tâches & relances", short: "Tâches", icon: ListTodo },
   { href: "/notifications", label: "Notifications", short: "Alertes", icon: Bell },
@@ -116,6 +117,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               </>
             )}
           </div>
+          <Link href="/inbox" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-panel-2 hover:text-fg lg:hidden" aria-label="Réception site"><Inbox className="h-5 w-5" /></Link>
           <NotificationBell />
         </div>
       </header>
@@ -124,7 +126,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav mobile */}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-panel/95 backdrop-blur-md lg:hidden">
-        {NAV.filter((n) => n.href !== "/notifications").map((n) => (
+        {NAV.filter((n) => n.href !== "/notifications" && n.href !== "/inbox").map((n) => (
           <Link key={n.href} href={n.href} className={clsx("flex flex-col items-center gap-0.5 py-2 text-[10px]", isActive(n.href) ? "text-brand" : "text-faint")}>
             <n.icon className="h-5 w-5" /> {n.short}
           </Link>
