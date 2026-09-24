@@ -117,7 +117,6 @@ function Shell({ children }: { children: React.ReactNode }) {
               </>
             )}
           </div>
-          <Link href="/inbox" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-panel-2 hover:text-fg lg:hidden" aria-label="Réception site"><Inbox className="h-5 w-5" /></Link>
           <NotificationBell />
         </div>
       </header>
@@ -125,9 +124,9 @@ function Shell({ children }: { children: React.ReactNode }) {
       <main className="mx-auto max-w-[1400px] px-3 pb-28 pt-5 sm:px-5 lg:px-8 lg:pb-10 lg:pt-7">{children}</main>
 
       {/* Bottom nav mobile */}
-      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-line bg-panel/95 backdrop-blur-md lg:hidden">
-        {NAV.filter((n) => n.href !== "/notifications" && n.href !== "/inbox").map((n) => (
-          <Link key={n.href} href={n.href} className={clsx("flex flex-col items-center gap-0.5 py-2 text-[10px]", isActive(n.href) ? "text-brand" : "text-faint")}>
+      <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-line bg-panel/95 backdrop-blur-md lg:hidden">
+        {NAV.filter((n) => n.href !== "/notifications").map((n) => (
+          <Link key={n.href} href={n.href} className={clsx("flex min-w-0 flex-col items-center gap-0.5 py-2 text-[10px]", isActive(n.href) ? "text-brand" : "text-faint")}>
             <n.icon className="h-5 w-5" /> {n.short}
           </Link>
         ))}

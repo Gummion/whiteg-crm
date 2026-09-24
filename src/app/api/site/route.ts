@@ -10,6 +10,7 @@ import { createClient } from "@supabase/supabase-js";
 export const dynamic = "force-dynamic";
 
 const SITE_URL = process.env.SITE_SUPABASE_URL ?? "https://ncolrjuftmjygnwvvpna.supabase.co";
+// accepts either variable name set on Vercel
 const SITE_KEY = process.env.SITE_SUPABASE_SECRET_KEY || process.env.crmlecture || process.env.CRMLECTURE;
 
 const RESOURCES: Record<string, { table: string; select: string; order?: string; limit?: number }> = {
