@@ -45,10 +45,31 @@ function retryDelayMs(body: unknown) {
   return d ? Math.ceil(parseFloat(d) * 1000) : 0;
 }
 
+/** Lists the models this key can really use (Google retires model names regularly). Cached 1 h. */
+let modelCache: { at: number; list: string[] } | null = null;
+async function discoverModels(): Promise<string[]> {
+  if (modelCache && Date.now() - modelCache.at < 3600_000) return modelCache.list;
+  try {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": KEY()! }, signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return [];
+    const j = (await res.json()) as { models?: { name: string; supportedGenerationMethods?: string[] }[] };
+    const names = (j.models ?? [])
+      .filter((m) => m.supportedGenerationMethods?.includes("generateContent"))
+      .map((m) => m.name.replace(/^models\//, ""))
+      .filter((n) => /^gemini-.*flash/.test(n) && !/image|tts|audio|live|embed|thinking|computer|robotics/.test(n));
+    const rank = (n: string) => (/latest$/.test(n) ? 0 : 1) + (/preview|exp/.test(n) ? 2 : 0) + (/lite/.test(n) ? 1 : 0);
+    const list = names.sort((a, b) => rank(a) - rank(b) || b.localeCompare(a));
+    modelCache = { at: Date.now(), list };
+    return list;
+  } catch {
+    return [];
+  }
+}
+
 /** Tries several models: if one has no quota (free tier = 0, daily limit reached…) the next one is used. */
 export async function generate(o: GenOpts): Promise<string> {
   if (!KEY()) throw new AiError("not_configured", "IA non configurée : ajoutez la variable GEMINI_API_KEY sur Vercel.");
-  const models = [...new Set([MODEL(), "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite"])];
+  const models = [...new Set([MODEL(), "gemini-flash-latest", "gemini-flash-lite-latest", ...(await discoverModels())])].slice(0, 6);
   let lastQuota = "";
   let lastError = "";
   const tried: string[] = [];
@@ -79,7 +100,7 @@ export async function generate(o: GenOpts): Promise<string> {
         break;
       }
       if (status === 404 || status === 400) { lastError = `${model} : ${msg}`; break; }
-      if (status >= 500 && attempt === 0) { await new Promise((r) => setTimeout(r, 1200)); continue; }
+      // overloaded / server error: switch to the next model right away (no double billing on the same one)
       lastError = `${model} (${status}) : ${msg}`;
       break;
     }
