@@ -74,7 +74,7 @@ export function guessCategory(lead: Pick<SiteLead, "category_slug" | "service_co
 /** "500 000 – 1 000 000 DA", "1M-2M", "< 300k" … → lower bound in DA (or 0) */
 export function parseBudget(s?: string | null) {
   if (!s) return 0;
-  const m = s.toLowerCase().replace(/\s| | /g, "").match(/(\d+(?:[.,]\d+)?)(k|m|million)?/);
+  const m = s.toLowerCase().replace(/\s|\u00a0|\u202f/g, "").match(/(\d+(?:[.,]\d+)?)(k|m|million)?/);
   if (!m) return 0;
   let n = parseFloat(m[1].replace(",", "."));
   if (m[2] === "k") n *= 1_000;

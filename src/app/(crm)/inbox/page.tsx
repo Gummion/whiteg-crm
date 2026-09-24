@@ -20,7 +20,7 @@ const TABS: { key: SourceTable; label: string; icon: React.ElementType }[] = [
   { key: "clients", label: "Clients du site", icon: Users },
 ];
 
-const norm = (s?: string | null) => (s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\b(sarl|eurl|spa|snc|sas|ets|etablissements?)\b/g, "").replace(/[^a-z0-9]/g, "");
+const norm = (s?: string | null) => (s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\b(sarl|eurl|spa|snc|sas|ets|etablissements?)\b/g, "").replace(/[^a-z0-9]/g, "");
 
 export default function InboxPage() {
   const sb = supabaseBrowser();
