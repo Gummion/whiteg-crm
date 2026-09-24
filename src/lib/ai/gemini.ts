@@ -37,7 +37,7 @@ async function call(model: string, o: GenOpts) {
 
 function googleMessage(body: unknown) {
   const m = (body as { error?: { message?: string } })?.error?.message ?? "";
-  return m.replace(/\s+/g, " ").slice(0, 220);
+  return m.replace(/\s+/g, " ").replace(/ For more information.*$/i, "").slice(0, 300);
 }
 function retryDelayMs(body: unknown) {
   const details = (body as { error?: { details?: { retryDelay?: string }[] } })?.error?.details ?? [];
@@ -51,6 +51,7 @@ export async function generate(o: GenOpts): Promise<string> {
   const models = [...new Set([MODEL(), "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-2.0-flash-lite"])];
   let lastQuota = "";
   let lastError = "";
+  const tried: string[] = [];
   const started = Date.now();
   for (const model of models) {
     for (let attempt = 0; attempt < 2; attempt++) {
@@ -66,11 +67,12 @@ export async function generate(o: GenOpts): Promise<string> {
         break;
       }
       const msg = googleMessage(body);
+      tried.push(`${model.replace("gemini-", "")} ${status}`);
       console.error("gemini", model, status, msg);
       if (status === 400 && /API key/i.test(msg)) throw new AiError("not_configured", "Clé IA invalide : vérifiez GEMINI_API_KEY sur Vercel.");
       if (status === 401 || status === 403) throw new AiError("not_configured", `Clé IA refusée (${status}) : ${msg || "vérifiez GEMINI_API_KEY et que l'API Gemini est activée"}`);
       if (status === 429) {
-        lastQuota = `${model} : ${msg}`;
+        if (!lastQuota || /limit|quota_metric|free/i.test(msg)) lastQuota = `${model} : ${msg}`;
         const wait = retryDelayMs(body);
         // short per-minute limit on this model → wait once; otherwise (daily / zero quota) → next model
         if (attempt === 0 && wait > 0 && wait <= 6000 && !/limit: 0|per ?day|PerDay/i.test(msg)) { await new Promise((r) => setTimeout(r, wait)); continue; }
@@ -82,6 +84,7 @@ export async function generate(o: GenOpts): Promise<string> {
       break;
     }
   }
-  if (lastQuota) throw new AiError("quota", `Quota Gemini épuisé sur tous les modèles. Dernier message de Google — ${lastQuota}`);
-  throw new AiError("upstream", `Service IA indisponible. ${lastError}`.trim());
+  const summary = tried.length ? ` [essais : ${tried.join(", ")}]` : "";
+  if (lastQuota) throw new AiError("quota", `Google refuse les requêtes de cette clé (quota à 0 ou épuisé)${summary}. Message Google — ${lastQuota}`);
+  throw new AiError("upstream", `Service IA indisponible${summary}. ${lastError}`.trim());
 }
