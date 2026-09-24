@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Mail, Shield, Trash2, UserPlus, Plug, BellRing } from "lucide-react";
+import { LogOut, Mail, Shield, Trash2, UserPlus, Plug } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { Avatar, Badge, Button, Field, PageHeader, useToast } from "@/components/ui";
 import { useCrm } from "@/components/crm-context";
 import { CompanyForm } from "@/components/documents/company-form";
+import { NotificationSettings } from "@/components/notification-settings";
 
 type Invite = { email: string; role: string; created_at: string };
 
@@ -20,7 +21,6 @@ export default function SettingsPage() {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [newEmail, setNewEmail] = useState("");
   const [newRole, setNewRole] = useState("member");
-  const [perm, setPerm] = useState<string>("default");
   const [external, setExternal] = useState<number | null>(null);
 
   const loadInvites = useCallback(async () => {
@@ -31,7 +31,6 @@ export default function SettingsPage() {
   useEffect(() => { loadInvites(); }, [loadInvites]);
   useEffect(() => { setName(me?.full_name ?? ""); }, [me?.full_name]);
   useEffect(() => {
-    setPerm("Notification" in window ? Notification.permission : "unsupported");
     sb.from("clients").select("id", { count: "exact", head: true }).not("external_source", "is", null)
       .then(({ count }: { count: number | null }) => setExternal(count ?? 0));
   }, [sb]);
@@ -83,20 +82,9 @@ export default function SettingsPage() {
           <Button variant="danger" className="mt-5 w-full" onClick={logout}><LogOut className="h-4 w-4" /> Se déconnecter</Button>
         </section>
 
-        <section className="card p-4 sm:p-5">
-          <h2 className="mb-1 flex items-center gap-2 font-semibold"><BellRing className="h-4 w-4 text-brand" /> Notifications</h2>
-          <p className="mb-4 text-sm text-muted">Vous recevez une alerte pour : nouveau client ou lead entrant, nouvelle opportunité, changement d&apos;étape, tâche assignée, rappel 1 h avant échéance, date de relance client atteinte.</p>
-          <div className="flex items-center justify-between rounded-lg bg-panel-2 p-3 text-sm">
-            <span>Alertes navigateur</span>
-            {perm === "granted" ? <Badge color="#34d399">Activées</Badge>
-              : perm === "unsupported" ? <Badge>Non supporté</Badge>
-              : perm === "denied" ? <Badge color="#f87171">Bloquées</Badge>
-              : <Button size="sm" onClick={async () => setPerm(await Notification.requestPermission())}>Activer</Button>}
-          </div>
-          <p className="mt-3 text-xs text-faint">Astuce mobile : ouvrez le CRM dans Chrome/Safari puis « Ajouter à l&apos;écran d&apos;accueil » pour l&apos;utiliser comme une application.</p>
-        </section>
-
         <CompanyForm canEdit={isAdmin} />
+
+        <NotificationSettings />
 
         <section className="card p-4 sm:p-5 lg:col-span-2">
           <h2 className="mb-4 flex items-center gap-2 font-semibold"><Shield className="h-4 w-4 text-brand" /> Équipe ({members.length})</h2>

@@ -26,6 +26,10 @@ export default function InboxPage() {
   const sb = supabaseBrowser();
   const toast = useToast();
   const [tab, setTab] = useState<SourceTable>("leads");
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("tab");
+    if (t === "contact_messages" || t === "clients") setTab(t);
+  }, []);
   const [filter, setFilter] = useState<"todo" | "done" | "ignored" | "all">("todo");
   const [q, setQ] = useState("");
   const [rows, setRows] = useState<Record<SourceTable, (SiteLead | SiteMessage | SiteClient)[]>>({ leads: [], contact_messages: [], clients: [] });

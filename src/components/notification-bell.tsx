@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
-import { Bell, CheckCheck, Briefcase, UserPlus, AlarmClock, Trophy, XCircle, ListTodo, Inbox } from "lucide-react";
+import { Bell, CheckCheck, Briefcase, UserPlus, AlarmClock, Trophy, XCircle, ListTodo, Inbox, Sun } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import type { Notification } from "@/lib/types";
 import { fmtAgo } from "@/lib/format";
+import { getPushState, setBadge } from "@/lib/push";
 import { useCrm } from "./crm-context";
 import { useToast } from "./ui";
 
@@ -20,6 +21,7 @@ export const KIND_ICON: Record<string, { icon: React.ElementType; color: string 
   lost: { icon: XCircle, color: "#f87171" },
   task: { icon: ListTodo, color: "#60a5fa" },
   info: { icon: Bell, color: "#a1a1aa" },
+  digest: { icon: Sun, color: "#ED9C35" },
 };
 
 export function NotificationBell() {
@@ -31,6 +33,8 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const unread = items.filter((n) => !n.read).length;
+  const pushOn = useRef(false);
+  useEffect(() => { getPushState().then((st) => { pushOn.current = st === "on"; }); }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -44,7 +48,8 @@ export function NotificationBell() {
           const n = payload.new;
           setItems((l) => [n, ...l].slice(0, 50));
           toast(n.title, "info");
-          if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+          // when push is active on this device the service worker already shows it — avoid duplicates
+          if (!pushOn.current && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
             try {
               const bn = new Notification(n.title, { body: n.body ?? undefined, icon: "/icon-192.png", tag: n.id });
               bn.onclick = () => { window.focus(); if (n.link) router.push(n.link); };
@@ -58,6 +63,7 @@ export function NotificationBell() {
 
   useEffect(() => {
     document.title = unread > 0 ? `(${unread}) White G CRM` : "White G CRM";
+    setBadge(unread);
   }, [unread]);
 
   useEffect(() => {

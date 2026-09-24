@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import {
-  LayoutDashboard, Inbox, Users, KanbanSquare, ListTodo, FileText, Bell, Settings, Plus, Search, LogOut, UserPlus, Briefcase, AlarmClock, ShieldAlert,
+  LayoutDashboard, Inbox, Users, KanbanSquare, ListTodo, FileText, Bell, Settings, Plus, Search, LogOut, UserPlus, Briefcase, AlarmClock, ShieldAlert, Sparkles,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { CrmProvider, useCrm } from "./crm-context";
@@ -13,6 +13,7 @@ import { NotificationBell } from "./notification-bell";
 import { ClientForm, DealForm, TaskForm } from "./forms";
 import { Avatar, Button, Spinner, ToastProvider } from "./ui";
 import { GMark, Logo } from "./logo";
+import { registerSW, syncPush } from "@/lib/push";
 
 const NAV = [
   { href: "/", label: "Tableau de bord", short: "Accueil", icon: LayoutDashboard },
@@ -20,6 +21,7 @@ const NAV = [
   { href: "/pipeline", label: "Pipeline", short: "Pipeline", icon: KanbanSquare },
   { href: "/inbox", label: "Réception site", short: "Réception", icon: Inbox },
   { href: "/documents", label: "Documents", short: "Docs", icon: FileText },
+  { href: "/ia", label: "Assistant IA", short: "IA", icon: Sparkles },
   { href: "/taches", label: "Tâches & relances", short: "Tâches", icon: ListTodo },
   { href: "/notifications", label: "Notifications", short: "Alertes", icon: Bell },
   { href: "/parametres", label: "Paramètres", short: "Réglages", icon: Settings },
@@ -51,6 +53,11 @@ function Shell({ children }: { children: React.ReactNode }) {
     document.addEventListener("keydown", h);
     return () => document.removeEventListener("keydown", h);
   }, []);
+
+  useEffect(() => {
+    if (!me) return;
+    registerSW().then(() => syncPush());
+  }, [me]);
 
   const logout = async () => { await supabaseBrowser().auth.signOut(); router.replace("/login"); router.refresh(); };
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
@@ -117,6 +124,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               </>
             )}
           </div>
+          <Link href="/ia" className="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-panel-2 hover:text-brand lg:hidden" aria-label="Assistant IA"><Sparkles className="h-5 w-5" /></Link>
           <NotificationBell />
         </div>
       </header>
@@ -125,7 +133,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav mobile */}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-line bg-panel/95 backdrop-blur-md lg:hidden">
-        {NAV.filter((n) => n.href !== "/notifications").map((n) => (
+        {NAV.filter((n) => n.href !== "/notifications" && n.href !== "/ia").map((n) => (
           <Link key={n.href} href={n.href} className={clsx("flex min-w-0 flex-col items-center gap-0.5 py-2 text-[10px]", isActive(n.href) ? "text-brand" : "text-faint")}>
             <n.icon className="h-5 w-5" /> {n.short}
           </Link>

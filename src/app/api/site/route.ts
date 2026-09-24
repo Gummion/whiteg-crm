@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { crmMember, validBridgeNonce } from "@/lib/server-auth";
 
 /**
  * READ-ONLY bridge to the website's Supabase (another account).
  * - Only GET requests are ever sent to the website database: nothing is written, updated or deleted there.
  * - The website secret key lives only on the server (Vercel env var SITE_SUPABASE_SECRET_KEY), never in the browser.
- * - Only authenticated CRM team members can call this route.
+ * - Only authenticated CRM team members can call this route, or the CRM's own background watcher
+ *   (one-time nonce issued by the CRM database, limited to leads and contact messages).
  */
 export const dynamic = "force-dynamic";
 
@@ -22,24 +23,14 @@ const RESOURCES: Record<string, { table: string; select: string; order?: string;
   offers: { table: "offers", select: "code,name,category_code,category_slug,delay_label" },
 };
 
-async function isCrmMember(req: NextRequest) {
-  const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return false;
-  const crm = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data: u } = await crm.auth.getUser(token);
-  if (!u.user) return false;
-  const { data } = await crm.from("crm_members").select("user_id").eq("user_id", u.user.id).maybeSingle();
-  return !!data;
-}
-
 export async function GET(req: NextRequest) {
-  if (!(await isCrmMember(req))) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  const name = req.nextUrl.searchParams.get("resource") ?? "leads";
+  const allowed = req.headers.has("x-bridge-nonce")
+    ? (name === "leads" || name === "contact_messages") && (await validBridgeNonce(req))
+    : !!(await crmMember(req));
+  if (!allowed) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   if (!SITE_KEY) return NextResponse.json({ error: "not_configured" }, { status: 503 });
 
-  const name = req.nextUrl.searchParams.get("resource") ?? "leads";
   const r = RESOURCES[name];
   if (!r) return NextResponse.json({ error: "unknown resource" }, { status: 400 });
 

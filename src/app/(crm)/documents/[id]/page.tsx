@@ -14,6 +14,7 @@ import { amountInWords } from "@/lib/documents/words";
 import { emitChange } from "@/lib/events";
 import { ActionsEditor, Block, InfoEditor, LinesEditor, SectionsEditor } from "@/components/documents/fields";
 import { PaymentForm } from "@/components/documents/payment-form";
+import { AiWrite } from "@/components/ai/ai-write";
 import { Button, Empty, Field, Spinner, useToast } from "@/components/ui";
 
 export default function DocumentPage({ params }: { params: Promise<{ id: string }> }) {
@@ -86,17 +87,18 @@ export default function DocumentPage({ params }: { params: Promise<{ id: string 
     emitChange();
   }, [sb, toast]);
 
-  const update = (patch: Partial<Doc>) => {
+  const mutate = (fn: (d: Doc) => Doc) => {
     setDoc((d) => {
       if (!d) return d;
-      const n = { ...d, ...patch };
+      const n = fn(d);
       dirty.current = true;
       if (saveTimer.current) clearTimeout(saveTimer.current);
       saveTimer.current = setTimeout(() => save(n), 900);
       return n;
     });
   };
-  const setData = (patch: Partial<DocData>) => doc && update({ data: { ...doc.data, ...patch } });
+  const update = (patch: Partial<Doc>) => mutate((d) => ({ ...d, ...patch }));
+  const setData = (patch: Partial<DocData>) => mutate((d) => ({ ...d, data: { ...d.data, ...patch } }));
 
   useEffect(() => {
     const warn = (e: BeforeUnloadEvent) => { if (dirty.current) { e.preventDefault(); } };
@@ -224,6 +226,7 @@ export default function DocumentPage({ params }: { params: Promise<{ id: string 
             </div>
             {(d.intro !== undefined || doc.kind === "proposition" || doc.kind === "contrat" || doc.kind === "nda") && (
               <Field label={doc.kind === "contrat" || doc.kind === "nda" ? "Préambule / parties" : "Introduction"} className="mt-3">
+                <div className="mb-1 flex justify-end"><AiWrite docId={doc.id} field={doc.kind === "contrat" || doc.kind === "nda" ? "Préambule" : "Introduction"} value={d.intro ?? ""} onChange={(intro) => setData({ intro })} /></div>
                 <textarea className="input min-h-28 text-sm leading-relaxed" value={d.intro ?? ""} onChange={(e) => setData({ intro: e.target.value })} />
               </Field>
             )}
@@ -236,10 +239,10 @@ export default function DocumentPage({ params }: { params: Promise<{ id: string 
             <Block title="Participants"><textarea className="input min-h-20 text-sm" value={d.participants ?? ""} onChange={(e) => setData({ participants: e.target.value })} /></Block>
           )}
           {meta.blocks.includes("sections") && (
-            <Block title="Contenu" hint="Sections du document"><SectionsEditor kind="section" items={d.sections ?? []} onChange={(sections) => setData({ sections })} /></Block>
+            <Block title="Contenu" hint="Sections du document"><SectionsEditor kind="section" docId={doc.id} items={d.sections ?? []} onChange={(sections) => setData({ sections })} /></Block>
           )}
           {meta.blocks.includes("articles") && (
-            <Block title="Articles" hint="Modèle à adapter — faites valider vos contrats types par un juriste"><SectionsEditor kind="article" items={d.articles ?? []} onChange={(articles) => setData({ articles })} /></Block>
+            <Block title="Articles" hint="Modèle à adapter — faites valider vos contrats types par un juriste"><SectionsEditor kind="article" docId={doc.id} items={d.articles ?? []} onChange={(articles) => setData({ articles })} /></Block>
           )}
           {meta.blocks.includes("actions") && (
             <Block title="Plan d'actions"><ActionsEditor items={d.actions ?? []} onChange={(actions) => setData({ actions })} /></Block>
@@ -283,7 +286,7 @@ export default function DocumentPage({ params }: { params: Promise<{ id: string 
                 {(doc.kind === "devis" || doc.kind === "proposition" || doc.kind === "proforma") && (
                   <Field label="Validité (jours)"><input className="input" type="number" min={1} value={d.conditions?.validity_days ?? 30} onChange={(e) => setData({ conditions: { ...d.conditions, validity_days: Number(e.target.value) } })} /></Field>
                 )}
-                <Field label="Remarques" className="sm:col-span-2"><textarea className="input min-h-16 text-sm" value={d.conditions?.notes ?? ""} onChange={(e) => setData({ conditions: { ...d.conditions, notes: e.target.value } })} /></Field>
+                <Field label="Remarques" className="sm:col-span-2"><div className="mb-1 flex justify-end"><AiWrite docId={doc.id} field="Remarques / conditions particulières" value={d.conditions?.notes ?? ""} onChange={(notes) => setData({ conditions: { ...d.conditions, notes } })} /></div><textarea className="input min-h-16 text-sm" value={d.conditions?.notes ?? ""} onChange={(e) => setData({ conditions: { ...d.conditions, notes: e.target.value } })} /></Field>
               </div>
             </Block>
           )}

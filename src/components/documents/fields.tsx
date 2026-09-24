@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import type { DocAction, DocInfo, DocLine, DocSection } from "@/lib/documents/config";
 import { lineTotal } from "@/lib/documents/config";
 import { money } from "@/lib/documents/money";
+import { AiWrite } from "@/components/ai/ai-write";
 
 function move<T>(list: T[], i: number, d: -1 | 1) {
   const j = i + d;
@@ -77,7 +78,7 @@ export function LinesEditor({ lines, onChange }: { lines: DocLine[]; onChange: (
 }
 
 /* ---------------- Sections / Articles ---------------- */
-export function SectionsEditor({ items, onChange, kind }: { items: DocSection[]; onChange: (s: DocSection[]) => void; kind: "section" | "article" }) {
+export function SectionsEditor({ items, onChange, kind, docId }: { items: DocSection[]; onChange: (s: DocSection[]) => void; kind: "section" | "article"; docId?: string }) {
   const set = (i: number, patch: Partial<DocSection>) => onChange(items.map((s, k) => (k === i ? { ...s, ...patch } : s)));
   return (
     <div className="space-y-2">
@@ -88,6 +89,11 @@ export function SectionsEditor({ items, onChange, kind }: { items: DocSection[];
             <input className="input font-medium" placeholder="Titre" value={s.title} onChange={(e) => set(i, { title: e.target.value })} />
             <RowTools i={i} n={items.length} onMove={(d) => onChange(move(items, i, d))} onRemove={() => onChange(items.filter((_, k) => k !== i))} />
           </div>
+          {docId && (
+            <div className="mb-1 flex justify-end">
+              <AiWrite docId={docId} field={`${kind === "article" ? `Article ${i + 1}` : "Section"} « ${s.title || "sans titre"} »`} value={s.body} onChange={(body) => set(i, { body })} />
+            </div>
+          )}
           <textarea className="input min-h-24 text-sm leading-relaxed" value={s.body} onChange={(e) => set(i, { body: e.target.value })}
             placeholder="Texte… (« - » en début de ligne = puce, « 1. » = liste numérotée, **gras**)" />
         </div>
