@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
@@ -13,6 +12,7 @@ import { CrmProvider, useCrm } from "./crm-context";
 import { NotificationBell } from "./notification-bell";
 import { ClientForm, DealForm, TaskForm } from "./forms";
 import { Avatar, Button, Spinner, ToastProvider } from "./ui";
+import { GMark, Logo } from "./logo";
 
 const NAV = [
   { href: "/", label: "Tableau de bord", short: "Accueil", icon: LayoutDashboard },
@@ -64,7 +64,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       {/* Sidebar desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-line bg-panel lg:flex">
         <div className="flex h-16 items-center gap-3 border-b border-line px-5">
-          <Image src="/logo-full.png" alt="White G" width={130} height={25} priority className="h-6 w-auto" />
+          <Logo size={17} />
           <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand">CRM</span>
         </div>
         <nav className="flex-1 space-y-0.5 p-3">
@@ -91,7 +91,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       {/* Top bar */}
       <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-bg/85 px-3 backdrop-blur-md sm:px-5 lg:h-16">
         <Link href="/" className="flex shrink-0 items-center lg:hidden">
-          <Image src="/logo-mark.png" alt="White G" width={36} height={36} className="h-9 w-9 rounded-lg" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-black text-white ring-1 ring-line"><GMark size={20} /></span>
         </Link>
         <form className="relative min-w-0 flex-1 max-w-md"
           onSubmit={(e) => { e.preventDefault(); router.push("/clients?q=" + encodeURIComponent(q)); searchRef.current?.blur(); }}>

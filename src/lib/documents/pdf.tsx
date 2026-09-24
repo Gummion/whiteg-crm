@@ -17,15 +17,14 @@ let family = "Inter";
 let counter = 0;
 export function registerPdfFonts(base: string) {
   family = `Inter-${++counter}`;
+  // `base` is either the app origin (fonts served from /public/fonts) or "cdn" (jsDelivr mirror of the same files)
+  const src = (w: number) =>
+    base === "cdn"
+      ? `https://cdn.jsdelivr.net/npm/@fontsource/inter@5.2.8/files/inter-latin-${w}-normal.woff`
+      : `${base}/fonts/Inter-${w}.woff`;
   Font.register({
     family,
-    fonts: [
-      { src: `${base}/fonts/Inter-400.woff`, fontWeight: 400 },
-      { src: `${base}/fonts/Inter-400i.woff`, fontWeight: 400, fontStyle: "italic" },
-      { src: `${base}/fonts/Inter-500.woff`, fontWeight: 500 },
-      { src: `${base}/fonts/Inter-600.woff`, fontWeight: 600 },
-      { src: `${base}/fonts/Inter-700.woff`, fontWeight: 700 },
-    ],
+    fonts: [400, 500, 600, 700].map((w) => ({ src: src(w), fontWeight: w })),
   });
   // never split words with hyphens (French text, references, amounts)
   Font.registerHyphenationCallback((word) => [word]);
@@ -394,7 +393,7 @@ function Sections({ sections }: { sections?: { title: string; body: string }[] }
           <View wrap={false}>
             <View style={[s.h2Bar, { marginTop: 14 }]} />
             <Text style={[s.h2, { marginTop: 0 }]}>{sec.title}</Text>
-            {sec.body?.trim() ? <Rich text={splitHead(sec.body)[0]} /> : <Text style={{ color: C.faint, fontStyle: "italic" }}>—</Text>}
+            {sec.body?.trim() ? <Rich text={splitHead(sec.body)[0]} /> : <Text style={{ color: C.faint }}>—</Text>}
           </View>
           <Rich text={splitHead(sec.body)[1]} />
         </View>

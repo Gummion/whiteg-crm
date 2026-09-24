@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { Logo } from "@/components/logo";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -40,7 +40,7 @@ export default function LoginPage() {
       <div className="pointer-events-none absolute -top-40 left-1/2 h-96 w-[40rem] -translate-x-1/2 rounded-full bg-brand/10 blur-3xl" />
       <div className="relative w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center">
-          <Image src="/logo-full.png" alt="White G" width={200} height={38} priority className="h-9 w-auto" />
+          <Logo size={30} />
           <p className="mt-3 text-sm text-muted">CRM · Suivi clients & projets</p>
         </div>
         <form onSubmit={submit} className="card space-y-4 p-6">

@@ -75,9 +75,20 @@ export async function loadStatement(clientId: string, from?: string, to?: string
 }
 
 /** Render to a PDF Blob in the browser (react-pdf is loaded lazily, only when needed). */
+let fontBase: Promise<string> | null = null;
+/** Use the fonts shipped in /public/fonts when present, otherwise the identical files from jsDelivr. */
+function resolveFontBase() {
+  if (!fontBase) {
+    fontBase = fetch("/fonts/Inter-400.woff", { method: "HEAD" })
+      .then((r) => (r.ok && !(r.headers.get("content-type") ?? "").includes("text/html") ? window.location.origin : "cdn"))
+      .catch(() => "cdn");
+  }
+  return fontBase;
+}
+
 export async function renderPdfBlob(input: PdfInput): Promise<Blob> {
-  const [{ pdf }, mod, React] = await Promise.all([import("@react-pdf/renderer"), import("./pdf"), import("react")]);
-  mod.registerPdfFonts(window.location.origin);
+  const [{ pdf }, mod, React, base] = await Promise.all([import("@react-pdf/renderer"), import("./pdf"), import("react"), resolveFontBase()]);
+  mod.registerPdfFonts(base);
   return pdf(React.createElement(mod.DocumentPdf, input) as Parameters<typeof pdf>[0]).toBlob();
 }
 
