@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-brand: #ed9c35;
+  --color-brand-600: #d9862a;
+  --color-brand-soft: rgb(237 156 53 / 0.12);
+  --color-bg: #0a0a0b;
+  --color-panel: #121214;
+  --color-panel-2: #18181b;
+  --color-line: #26262b;
+  --color-line-2: #34343a;
+  --color-fg: #f4f4f5;
+  --color-muted: #a1a1aa;
+  --color-faint: #71717a;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html { color-scheme: dark; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
+
+* { scrollbar-width: thin; scrollbar-color: #34343a transparent; }
+
+@layer components {
+.input {
+  @apply w-full rounded-lg border border-line bg-panel-2 px-3 py-2 text-base sm:text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20;
+}
+select.input { @apply pr-8; }
+.label { @apply mb-1 block text-xs font-medium text-muted; }
+.card { @apply rounded-xl border border-line bg-panel; }
+}
+
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+@keyframes slide-up { from { transform: translateY(16px); opacity: 0 } to { transform: none; opacity: 1 } }
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+.anim-up { animation: slide-up .2s ease-out; }
+.anim-fade { animation: fade-in .15s ease-out; }
