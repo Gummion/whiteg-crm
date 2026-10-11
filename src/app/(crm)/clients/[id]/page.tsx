@@ -8,7 +8,7 @@ import {
   ArrowLeft, Phone, MessageCircle, Mail, Pencil, Trash2, Plus, Globe, MapPin, Building2, Hash, CalendarClock, Star, Circle, CheckCircle2, StickyNote, UserRound,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { CLIENT_STATUSES, DEAL_STAGES, OFFER_CATEGORIES, SECTORS, SOURCES, colorOf, labelOf, ACTIVITY_TYPES } from "@/lib/constants";
+import { CLIENT_STATUSES, DEAL_STAGES, OPEN_STAGES, OFFER_CATEGORIES, SECTORS, SOURCES, colorOf, labelOf, ACTIVITY_TYPES } from "@/lib/constants";
 import type { Activity, Client, Contact, Deal, Task } from "@/lib/types";
 import { dueLabel, fmtAgo, fmtCompactDA, fmtDA, fmtDate, fmtDateTime, waLink } from "@/lib/format";
 import { emitChange, useOnChange } from "@/lib/events";
@@ -93,7 +93,7 @@ export default function ClientPage({ params }: { params: Promise<{ id: string }>
   const wa = primary?.whatsapp || phone;
   const email = c.email || primary?.email;
   const lifetime = deals.filter((d) => ["acompte_recu", "en_cours", "livre"].includes(d.stage)).reduce((a, d) => a + Number(d.amount), 0);
-  const open = deals.filter((d) => ["nouveau", "brief", "devis_envoye", "negociation"].includes(d.stage)).reduce((a, d) => a + Number(d.amount), 0);
+  const open = deals.filter((d) => OPEN_STAGES.includes(d.stage)).reduce((a, d) => a + Number(d.amount), 0);
   const openTasks = tasks.filter((t) => !t.done);
 
   return (

@@ -1,17 +1,21 @@
 export type Option<T extends string = string> = { value: T; label: string; color?: string };
 
 export const DEAL_STAGES = [
-  { value: "nouveau", label: "Nouveau", color: "#71717a", prob: 10 },
-  { value: "brief", label: "Brief reçu", color: "#60a5fa", prob: 20 },
-  { value: "devis_envoye", label: "Devis envoyé", color: "#a78bfa", prob: 40 },
-  { value: "negociation", label: "Négociation", color: "#f472b6", prob: 60 },
+  { value: "nouveau", label: "Contact reçu", color: "#71717a", prob: 5 },
+  { value: "fiche_envoyee", label: "Fiche envoyée", color: "#94a3b8", prob: 10 },
+  { value: "brief", label: "Fiche reçue", color: "#60a5fa", prob: 20 },
+  { value: "cadrage", label: "Cadrage validé", color: "#22d3ee", prob: 35 },
+  { value: "rd_en_cours", label: "R&D en cours", color: "#2dd4bf", prob: 50 },
+  { value: "formule_livree", label: "Formule livrée", color: "#818cf8", prob: 60 },
+  { value: "devis_envoye", label: "Devis final envoyé", color: "#a78bfa", prob: 65 },
+  { value: "negociation", label: "Négociation", color: "#f472b6", prob: 75 },
   { value: "acompte_recu", label: "Acompte reçu", color: "#ED9C35", prob: 90 },
   { value: "en_cours", label: "En production", color: "#facc15", prob: 95 },
   { value: "livre", label: "Livré", color: "#34d399", prob: 100 },
   { value: "perdu", label: "Perdu", color: "#f87171", prob: 0 },
 ] as const;
 export type DealStage = (typeof DEAL_STAGES)[number]["value"];
-export const OPEN_STAGES: DealStage[] = ["nouveau", "brief", "devis_envoye", "negociation"];
+export const OPEN_STAGES: DealStage[] = ["nouveau", "fiche_envoyee", "brief", "cadrage", "rd_en_cours", "formule_livree", "devis_envoye", "negociation"];
 export const ACTIVE_STAGES: DealStage[] = ["acompte_recu", "en_cours"];
 
 export const OFFER_CATEGORIES = [

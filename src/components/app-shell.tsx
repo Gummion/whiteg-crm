@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import {
-  LayoutDashboard, Inbox, Users, KanbanSquare, ListTodo, FileText, Bell, Settings, Plus, Search, LogOut, UserPlus, Briefcase, AlarmClock, ShieldAlert, Sparkles,
+  LayoutDashboard, Inbox, ClipboardCheck, Users, KanbanSquare, ListTodo, FileText, Bell, Settings, Plus, Search, LogOut, UserPlus, Briefcase, AlarmClock, ShieldAlert, Sparkles,
 } from "lucide-react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { CrmProvider, useCrm } from "./crm-context";
@@ -17,6 +17,7 @@ import { registerSW, syncPush } from "@/lib/push";
 
 const NAV = [
   { href: "/", label: "Tableau de bord", short: "Accueil", icon: LayoutDashboard },
+  { href: "/qualification", label: "Qualification", short: "Qualif.", icon: ClipboardCheck },
   { href: "/clients", label: "Clients", short: "Clients", icon: Users },
   { href: "/pipeline", label: "Pipeline", short: "Pipeline", icon: KanbanSquare },
   { href: "/inbox", label: "Réception site", short: "Réception", icon: Inbox },
@@ -133,7 +134,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav mobile */}
       <nav className="pb-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-line bg-panel/95 backdrop-blur-md lg:hidden">
-        {NAV.filter((n) => n.href !== "/notifications" && n.href !== "/ia").map((n) => (
+        {NAV.filter((n) => n.href !== "/notifications" && n.href !== "/ia" && n.href !== "/inbox").map((n) => (
           <Link key={n.href} href={n.href} className={clsx("flex min-w-0 flex-col items-center gap-0.5 py-2 text-[10px]", isActive(n.href) ? "text-brand" : "text-faint")}>
             <n.icon className="h-5 w-5" /> {n.short}
           </Link>

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { CLIENT_STATUSES, DEAL_STAGES, OFFER_CATEGORIES, SECTORS, SOURCES, labelOf } from "../constants";
+import { CLIENT_STATUSES, DEAL_STAGES, OPEN_STAGES, OFFER_CATEGORIES, SECTORS, SOURCES, labelOf } from "../constants";
 
 /**
  * Builds an exact, pre-computed statistical snapshot of the CRM (read with the user's own rights).
@@ -39,7 +39,7 @@ export async function buildSnapshot(sb: SupabaseClient) {
   const today = now.toISOString().slice(0, 10);
   const stageLabel = (s: unknown) => labelOf(DEAL_STAGES, String(s));
 
-  const open = deals.filter((d) => ["nouveau", "brief", "devis_envoye", "negociation"].includes(String(d.stage)));
+  const open = deals.filter((d) => (OPEN_STAGES as readonly string[]).includes(String(d.stage)));
   const active = deals.filter((d) => ["acompte_recu", "en_cours"].includes(String(d.stage)));
   const won = deals.filter((d) => ["acompte_recu", "en_cours", "livre"].includes(String(d.stage)));
   const lost = deals.filter((d) => d.stage === "perdu");

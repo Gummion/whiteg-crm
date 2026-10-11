@@ -22,7 +22,7 @@ import { Button, Empty, Spinner, useToast } from "@/components/ui";
 
 type Payment = { id: string; amount: number; paid_at: string; method: string; reference: string | null; documents: { number: string } | null };
 
-const PHASE_OF_STAGE: Record<DealStage, number> = { nouveau: 0, brief: 0, devis_envoye: 0, negociation: 1, acompte_recu: 2, en_cours: 2, livre: 3, perdu: 0 };
+const PHASE_OF_STAGE: Record<DealStage, number> = { nouveau: 0, fiche_envoyee: 0, brief: 0, cadrage: 0, rd_en_cours: 0, formule_livree: 0, devis_envoye: 0, negociation: 1, acompte_recu: 2, en_cours: 2, livre: 3, perdu: 0 };
 
 export default function DealDossier({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -37,6 +37,7 @@ export default function DealDossier({ params }: { params: Promise<{ id: string }
   const [edit, setEdit] = useState(false);
   const [pay, setPay] = useState(false);
   const [creating, setCreating] = useState<DocKind | null>(null);
+  const [qual, setQual] = useState<{ id: string; reference: string; grade: string; score: number } | null>(null);
 
   const load = useCallback(async () => {
     const [a, b, c, d] = await Promise.all([
@@ -45,6 +46,7 @@ export default function DealDossier({ params }: { params: Promise<{ id: string }
       sb.from("payments").select("id,amount,paid_at,method,reference,documents(number)").eq("deal_id", id).order("paid_at"),
       sb.from("activities").select("*").eq("deal_id", id).order("occurred_at", { ascending: false }).limit(30),
     ]);
+    sb.from("qual_requests").select("id,reference,grade,score").eq("deal_id", id).maybeSingle().then(({ data }: { data: { id: string; reference: string; grade: string; score: number } | null }) => setQual(data));
     setDeal(a.data); setDocs((b.data as Doc[]) ?? []); setPayments((c.data as unknown as Payment[]) ?? []); setActs(d.data ?? []);
     setLoading(false);
   }, [sb, id]);
@@ -93,6 +95,11 @@ export default function DealDossier({ params }: { params: Promise<{ id: string }
               <Link href={`/clients/${deal.client_id}`} className="hover:text-brand">{deal.clients?.company_name}</Link>
               {deal.product_format && ` · ${deal.product_format}`}{deal.quote_ref && ` · ${deal.quote_ref}`}
             </p>
+            {qual && (
+              <Link href={`/qualification/${qual.id}`} className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-line px-2 py-1 text-xs text-muted hover:border-brand hover:text-brand">
+                Dossier de qualification {qual.reference} · note {qual.grade} ({qual.score}/100)
+              </Link>
+            )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <select value={deal.stage} onChange={(e) => setStage(e.target.value as DealStage)}

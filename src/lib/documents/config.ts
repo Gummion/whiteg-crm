@@ -84,17 +84,17 @@ export const DOC_KINDS: Record<DocKind, KindMeta> = {
   proposition: {
     label: "Proposition commerciale", short: "Proposition", pdfTitle: "Proposition commerciale", phase: "commercial", priced: true,
     blocks: ["sections", "lines", "conditions"], statuses: ["brouillon", "emis", "accepte", "refuse", "annule"],
-    suggestAt: ["nouveau", "brief"], description: "Présente le contexte, l'approche, les livrables et l'investissement.",
+    suggestAt: ["cadrage"], description: "Présente le contexte, l'approche, les livrables et l'investissement.",
   },
   devis: {
     label: "Devis", short: "Devis", pdfTitle: "Devis", phase: "commercial", priced: true,
     blocks: ["lines", "conditions"], statuses: ["brouillon", "emis", "accepte", "refuse", "annule"],
-    suggestAt: ["brief", "devis_envoye", "negociation"], description: "Chiffrage détaillé à faire signer « bon pour accord ».",
+    suggestAt: ["formule_livree", "devis_envoye", "negociation"], description: "Chiffrage détaillé à faire signer « bon pour accord ».",
   },
   proforma: {
     label: "Facture proforma", short: "Proforma", pdfTitle: "Facture proforma", phase: "client", priced: true,
     blocks: ["lines", "conditions"], statuses: ["brouillon", "emis", "accepte", "annule"],
-    suggestAt: ["negociation", "acompte_recu"], description: "Permet au client de régler l'acompte (100 % avant démarrage).",
+    suggestAt: ["cadrage", "negociation", "acompte_recu"], description: "Permet au client de régler l'acompte (100 % avant démarrage).",
   },
   bon_commande: {
     label: "Bon de commande", short: "Commande", pdfTitle: "Bon de commande", phase: "client", priced: true,
@@ -109,12 +109,12 @@ export const DOC_KINDS: Record<DocKind, KindMeta> = {
   nda: {
     label: "Accord de confidentialité (NDA)", short: "NDA", pdfTitle: "Accord de confidentialité", phase: "commercial", priced: false,
     blocks: ["articles"], statuses: ["brouillon", "emis", "accepte", "annule"],
-    suggestAt: ["nouveau", "brief"], description: "Protège les formules et informations échangées dès le premier brief.",
+    suggestAt: ["fiche_envoyee", "brief", "cadrage"], description: "Protège les formules et informations échangées dès le premier brief.",
   },
   cahier_charges: {
     label: "Cahier des charges", short: "CDC", pdfTitle: "Cahier des charges", phase: "projet", priced: false,
     blocks: ["info", "sections"], statuses: ["brouillon", "emis", "accepte", "annule"],
-    suggestAt: ["brief", "acompte_recu"], description: "Besoin client : produit, format, spécifications, réglementaire, quantités.",
+    suggestAt: ["rd_en_cours", "formule_livree", "acompte_recu"], description: "Besoin client : produit, format, spécifications, réglementaire, quantités.",
   },
   ordre_mission: {
     label: "Ordre de mission", short: "Mission", pdfTitle: "Ordre de mission", phase: "projet", priced: false,
@@ -124,7 +124,7 @@ export const DOC_KINDS: Record<DocKind, KindMeta> = {
   compte_rendu: {
     label: "Compte rendu de réunion", short: "CR", pdfTitle: "Compte rendu de réunion", phase: "projet", priced: false,
     blocks: ["info", "participants", "sections", "actions"], statuses: ["brouillon", "emis", "annule"],
-    suggestAt: ["brief", "en_cours"], description: "Participants, points discutés, décisions et plan d'actions.",
+    suggestAt: ["cadrage", "rd_en_cours", "en_cours"], description: "Participants, points discutés, décisions et plan d'actions.",
   },
   rapport_final: {
     label: "Rapport final de prestation", short: "Rapport", pdfTitle: "Rapport final de prestation", phase: "projet", priced: false,

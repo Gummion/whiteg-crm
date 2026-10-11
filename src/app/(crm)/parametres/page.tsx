@@ -8,6 +8,7 @@ import { Avatar, Badge, Button, Field, PageHeader, useToast } from "@/components
 import { useCrm } from "@/components/crm-context";
 import { CompanyForm } from "@/components/documents/company-form";
 import { NotificationSettings } from "@/components/notification-settings";
+import { QualificationSettings } from "@/components/qualification-settings";
 
 type Invite = { email: string; role: string; created_at: string };
 
@@ -85,6 +86,8 @@ export default function SettingsPage() {
         <CompanyForm canEdit={isAdmin} />
 
         <NotificationSettings />
+
+        <div className="lg:col-span-2"><QualificationSettings isAdmin={isAdmin} /></div>
 
         <section className="card p-4 sm:p-5 lg:col-span-2">
           <h2 className="mb-4 flex items-center gap-2 font-semibold"><Shield className="h-4 w-4 text-brand" /> Équipe ({members.length})</h2>
