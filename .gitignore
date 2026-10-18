@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 !.env.example
+
+# Exports de données du site (contiennent des données personnelles) — ne jamais publier
+supabase/site/03_data.sql
+supabase/site/fusion_site.sql
