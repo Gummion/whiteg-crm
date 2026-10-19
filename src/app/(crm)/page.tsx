@@ -93,7 +93,8 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader title={`${hello}${me?.full_name ? ", " + me.full_name.split(" ")[0] : ""}`}
-        subtitle="Voici l'état de votre activité White G aujourd'hui." />
+        subtitle="Voici l'état de votre activité White G aujourd'hui."
+        actions={<Link href="/statistiques" className="inline-flex h-9 items-center gap-2 rounded-lg border border-line-2 bg-panel px-3 text-sm hover:bg-panel-2">Statistiques du site →</Link>} />
 
       {/* KPI */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
